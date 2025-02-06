@@ -1,10 +1,23 @@
-import {v1} from 'uuid'
-import type {Task, TasksState} from '../App'
-import type {CreateTodolistAction, DeleteTodolistAction} from './todolists-reducer'
+import type {Task, TasksState} from '../app/App.tsx'
+import {createTodolistAC, CreateTodolistAction, DeleteTodolistAction} from './todolists-reducer'
+import {createAction, createReducer, nanoid} from '@reduxjs/toolkit';
+
+export const createTaskAC1 = (payload: { todolistId: string, title: string }) => {
+  return {type: 'create_task', payload} as const
+}
+
+export const createTaskAC = createAction<{todolistId: string, title: string}>('tasks/createTask')
 
 const initialState: TasksState = {}
 
-export const tasksReducer = (state: TasksState = initialState, action: Actions): TasksState => {
+export const tasksReducer = createReducer(initialState, (builder) => {
+  builder
+      .addCase(createTodolistAC, (state, action) => {
+          state[action.payload.id] = []
+      })
+})
+
+/*export const tasksReducer = (state: TasksState = initialState, action: Actions): TasksState => {
   switch (action.type) {
     case 'delete_task': {
       return {
@@ -13,7 +26,7 @@ export const tasksReducer = (state: TasksState = initialState, action: Actions):
       }
     }
     case 'create_task': {
-      const newTask: Task = {title: action.payload.title, isDone: false, id: v1()}
+      const newTask: Task = {title: action.payload.title, isDone: false, id: nanoid()}
       return {...state, [action.payload.todolistId]: [newTask, ...state[action.payload.todolistId]]}
     }
     case "change_task_status": {
@@ -39,14 +52,10 @@ export const tasksReducer = (state: TasksState = initialState, action: Actions):
     default:
       return state
   }
-}
+}*/
 
 export const deleteTaskAC = (payload: { todolistId: string, taskId: string }) => {
   return {type: 'delete_task', payload} as const
-}
-
-export const createTaskAC = (payload: { todolistId: string, title: string }) => {
-  return {type: 'create_task', payload} as const
 }
 
 export const changeTaskStatusAC = (payload: { todolistId: string, taskId: string, isDone: boolean }) => {
